@@ -1,4 +1,5 @@
 
+
 name: ساخت استودیو تدوین فارسی
 
 on:
@@ -27,8 +28,37 @@ jobs:
         with:
           channel: stable
 
-      - name: آماده‌سازی اندروید
+      - name: آماده‌سازی پروژه Flutter
         run: flutter create . --platforms=android
+
+      - name: نصب Android SDK 36
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: تنظیم نسخه Android SDK
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          files = [
+              Path("android/app/build.gradle.kts"),
+              Path("android/app/build.gradle")
+          ]
+
+          for file in files:
+              if file.exists():
+                  content = file.read_text()
+                  content = content.replace(
+                      "compileSdk = flutter.compileSdkVersion",
+                      "compileSdk = 36"
+                  )
+                  content = content.replace(
+                      "compileSdkVersion flutter.compileSdkVersion",
+                      "compileSdkVersion 36"
+                  )
+                  file.write_text(content)
+                  print("Updated:", file)
+          PY
 
       - name: دریافت کتابخانه‌ها
         run: flutter pub get
