@@ -34,7 +34,7 @@ jobs:
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0"
 
-      - name: تنظیم نسخه Android SDK
+      - name: تنظیم نسخه Android SDK برنامه
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -66,24 +66,43 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import os
           import re
 
-          cache = Path.home() / ".pub-cache/hosted/pub.dev"
+          cache = Path(os.environ.get(
+              "PUB_CACHE",
+              str(Path.home() / ".pub-cache")
+          ))
 
-          for file in cache.glob("file_picker-*/android/build.gradle"):
+          files = list(
+              cache.glob("hosted/pub.dev/file_picker-*/android/build.gradle*")
+          )
+
+          if not files:
+              raise SystemExit("ERROR: file_picker Gradle file not found")
+
+          for file in files:
               content = file.read_text()
+
               content = re.sub(
-                  r'compileSdkVersion\s+34',
-                  'compileSdkVersion 36',
+                  r'(?m)^(\s*)compileSdkVersion\s+.*$',
+                  r'\g<1>compileSdkVersion 36',
                   content
               )
+
               content = re.sub(
-                  r'compileSdk\s*=\s*34',
-                  'compileSdk = 36',
+                  r'(?m)^(\s*)compileSdk\s*=\s*.*$',
+                  r'\g<1>compileSdk = 36',
                   content
               )
+
               file.write_text(content)
-              print("Fixed:", file)
+
+              print("FILE:", file)
+              for line in content.splitlines():
+                  if "compileSdk" in line:
+                      print("SDK SETTING:", line.strip())
+
           PY
 
       - name: ساخت APK
