@@ -2,7 +2,7 @@
 name: persian_video_studio
 description: استودیو تدوین فارسی
 publish_to: 'none'
-version: 0.1.0+1
+version: 0.2.0+2
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   file_picker: ^8.3.7
   video_player: ^2.9.2
+  flutter_native_video_trimmer: ^1.1.9
+  saver_gallery: ^4.1.2
 
 dev_dependencies:
   flutter_test:
@@ -20,4 +22,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  
