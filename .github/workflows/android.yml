@@ -1,0 +1,43 @@
+
+name: ساخت استودیو تدوین فارسی
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: ساخت نسخه اندروید
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: دریافت پروژه
+        uses: actions/checkout@v4
+
+      - name: نصب Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: نصب Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: آماده‌سازی اندروید
+        run: flutter create . --platforms=android
+
+      - name: دریافت کتابخانه‌ها
+        run: flutter pub get
+
+      - name: ساخت APK
+        run: flutter build apk --release
+
+      - name: ذخیره فایل APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Persian-Studio-Android
+          path: build/app/outputs/flutter-apk/app-release.apk
