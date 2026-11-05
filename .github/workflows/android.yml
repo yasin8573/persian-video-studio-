@@ -34,7 +34,7 @@ jobs:
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0"
 
-      - name: تنظیم نسخه Android SDK برنامه
+      - name: تنظیم SDK برنامه
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -50,6 +50,10 @@ jobs:
                   content = content.replace(
                       "compileSdk = flutter.compileSdkVersion",
                       "compileSdk = 36"
+                  )
+                  content = content.replace(
+                      "compileSdk flutter.compileSdkVersion",
+                      "compileSdk 36"
                   )
                   content = content.replace(
                       "compileSdkVersion flutter.compileSdkVersion",
@@ -96,12 +100,19 @@ jobs:
                   content
               )
 
+              content = re.sub(
+                  r'(?m)^(\s*)compileSdk\s+.*$',
+                  r'\g<1>compileSdk 36',
+                  content
+              )
+
               file.write_text(content)
 
+              if not re.search(r'(?m)^\s*compileSdk(?:Version)?\s*(?:=)?\s*36\b', content):
+                  raise SystemExit("ERROR: compileSdk 36 was not applied")
+
+              print("SUCCESS: file_picker uses SDK 36")
               print("FILE:", file)
-              for line in content.splitlines():
-                  if "compileSdk" in line:
-                      print("SDK SETTING:", line.strip())
 
           PY
 
